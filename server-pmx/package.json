@@ -1,5 +1,5 @@
 {
-  "name": "paco-max-poc",
+  "name": "stripe-subscription-be",
   "version": "0.1.0",
   "private": true,
   "scripts": {
