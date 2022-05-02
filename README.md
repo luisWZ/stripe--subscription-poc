@@ -1,4 +1,4 @@
-# paco-max-stripe-poc
+# Stripe's Subscription
 PoC Stripe Implementation
 
 There are two separated codebase, a back-end using node.js express `server` and front-end `client` using react.
