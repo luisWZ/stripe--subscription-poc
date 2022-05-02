@@ -10,9 +10,12 @@ module.exports = {
     publishable_key: process.env.STRIPE_PUBLISHABLE_KEY,
     webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
     checkout_currency: "mxn",
+    payment_method_types: ["card"],
   },
-  client: {
-    domain: process.env.CLIENT_DOMAIN,
+  clientDomain: process.env.CLIENT_DOMAIN,
+  constants: {
+    one_week: 640_800,
+    free_trial: true,
   },
   v_api: process.env.npm_package_version?.charAt(0),
   logger,

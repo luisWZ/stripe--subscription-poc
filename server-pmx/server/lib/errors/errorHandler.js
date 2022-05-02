@@ -2,14 +2,15 @@ const { logger } = require("../../config");
 
 const errorStatus = { status: "error" };
 
-module.exports = (error, req, res) => {
+// eslint-disable-next-line no-unused-vars
+module.exports = (error, req, res, next) => {
   const { message, stack } = error;
 
-  const stripeError = error.type?.match(/Stripe/g);
-  if (stripeError) {
-    res.status(400).send({ ...errorStatus, message, stack });
+  if (error.type) {
+    logger.fatal(stack);
+    res.status(400).send({ ...errorStatus, message });
   }
   // Unhandled errors ---------------------------------------------------------
-  logger.fatal(error);
-  return res.status(500).send({ ...errorStatus, message, stack });
+  logger.fatal(stack);
+  return res.status(500).send({ ...errorStatus, message });
 };

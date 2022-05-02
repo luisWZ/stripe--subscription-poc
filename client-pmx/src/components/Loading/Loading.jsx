@@ -1,8 +1,8 @@
 import { SpinnerContainer, SpinnerOverlay } from './Loading.styles';
 
-const Loading = () => (
-  <SpinnerOverlay>
-    <SpinnerContainer />
+const Loading = ({ buttonStyles }) => (
+  <SpinnerOverlay buttonStyles={buttonStyles}>
+    <SpinnerContainer buttonStyles={buttonStyles} />
   </SpinnerOverlay>
 );
 

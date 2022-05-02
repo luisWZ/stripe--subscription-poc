@@ -1,0 +1,199 @@
+$primary: hsl(6, 100%, 81%);
+$primary_dark: hsl(6, 98%, 78%);
+$dark: hsl(6, 83%, 11%);
+
+#root {
+  height: 100%;
+  width: 100%;
+  background-color: hsl(0, 0%, 96%);
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: hsl(0, 0%, 33%);
+  }
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  padding-top: 5vh;
+
+  a:not([class]) {
+    display: block;
+    padding: 1em 2em;
+    font-size: 1.2em;
+  }
+
+  a:not([class]),
+  button {
+    background-color: $primary;
+    border-radius: 0.3em;
+    color: $dark;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+
+    &:hover {
+      background-color: $primary_dark;
+    }
+    &[disabled] {
+      opacity: 0.66;
+      cursor: default;
+    }
+  }
+
+  button {
+    padding: 0.4em 0.8em;
+    margin-top: 0.3em;
+    height: 48px;
+  }
+
+  .inline {
+    border-bottom: 1px solid hsl(0deg, 0%, 80%);
+    font-style: italic;
+  }
+}
+
+header {
+  height: 3em;
+  display: flex;
+  background-color: white;
+  align-items: center;
+  padding-left: 2em;
+}
+
+.flex {
+  display: flex;
+  gap: 3em;
+  justify-content: center;
+  align-items: center;
+}
+
+.home {
+  background-color: hsl(0, 0%, 100%);
+  height: 30vh;
+  min-height: 200px;
+  padding: 3em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  h1 {
+    margin-bottom: 1em;
+  }
+}
+
+.plans {
+  background-color: hsl(0, 0%, 100%);
+  height: 30vh;
+  min-height: 200px;
+  padding: 3em;
+  min-width: 600px;
+
+  h1 {
+    text-align: center;
+  }
+
+  &__selection {
+    margin-top: 3vh;
+    display: flex;
+    gap: 5em;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__plan {
+    background-color: hsl(0, 0%, 98%);
+    border: 1px solid hsl(0, 0%, 88%);
+    border-radius: 0.5em;
+    padding: 1em 2em;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+}
+
+.sidebar {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: #fff;
+  height: 100%;
+  width: 400px;
+  box-shadow: 0 0 0.5em hsla(0, 0%, 50%, 0.35), 0 0 2em hsla(0, 0%, 8%, 0.2);
+  padding: 1em;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+
+    > div {
+      height: 2.5em;
+      background-color: #fff;
+      border: 1px solid hsl(0, 0%, 80%);
+      border-radius: 0.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      > * {
+        width: 100%;
+        background-color: transparent;
+        border-radius: 0;
+        border: none;
+        padding: 0.2em 0.5em;
+      }
+
+      > input {
+        height: 100%;
+      }
+    }
+  }
+}
+
+.testcards {
+  margin-top: 3em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.overlay {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.33);
+}
+
+.bg-gray {
+  background-color: hsl(0, 0%, 96%);
+  padding: 0.5em 1em;
+  border-radius: 0.3em;
+}
+
+.close-btn.close-btn {
+  position: absolute;
+  right: 1em;
+  height: 32px;
+  width: 32px;
+  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-msg {
+  color: #ef647a;
+  margin-top: 1.5em;
+  font-weight: 600;
+}

@@ -7,7 +7,7 @@ const Layout = ({ children }) => {
     <>
       <GlobalStyles />
       <Header />
-      <main>{children}</main>
+      <main className='main'>{children}</main>
     </>
   );
 };

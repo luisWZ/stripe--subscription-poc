@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-export const useLoadPrices = async () => {
+export const useLoadPrices = () => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,8 +13,9 @@ export const useLoadPrices = async () => {
       let response;
       try {
         response = await axios.get('/load-prices', {
-          signal: controller.abort,
+          signal: controller.signal,
         });
+
         if (response.statusText === 'OK') {
           setData(response.data.prices);
         }
@@ -33,7 +34,7 @@ export const useLoadPrices = async () => {
     return () => {
       controller.abort();
     };
-  });
+  }, []);
 
   return { data, isLoading, error };
 };
