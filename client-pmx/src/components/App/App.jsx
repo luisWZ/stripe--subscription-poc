@@ -26,15 +26,15 @@ const App = () => {
         <Layout>
           <Routes>
             <Route path='/' element={<HomePage />} />
-            <Route
-              path='/elements-no-trial'
-              element={<StripeElementsNoTrial />}
-            />
+            <Route path='/checkout' element={<StripeCheckout />} />
             <Route
               path='/elements-free-trial'
               element={<StripeElementsFreeTrial />}
             />
-            <Route path='/checkout' element={<StripeCheckout />} />
+            <Route
+              path='/elements-no-trial'
+              element={<StripeElementsNoTrial />}
+            />
             <Route
               path='/customer/:customerId'
               element={<CustomerDashboard />}

@@ -110,9 +110,8 @@ module.exports = (config) => {
         ],
         customer_email: email,
         subscription_data: {
-          metadata: { user_id: userId },
-          trial_end:
-            Math.round(Date.now() / 1000) + config.constants.one_week * 2,
+          metadata: { userId, email },
+          trial_end: Math.round(Date.now() / 1000) + config.one_week * 2,
         },
         success_url: `${config.clientDomain}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${config.clientDomain}/checkout`,
@@ -149,6 +148,74 @@ module.exports = (config) => {
     }
   });
 
+  router.post("/create-no-trial-subscription", async (req, res, next) => {
+    const { name, email, userId, priceId } = req.body;
+    try {
+      const customerExists = await stripe.customers.search({
+        query: `email:"${email}"`,
+      });
+
+      if (customerExists.data?.length) {
+        const [customer] = customerExists.data;
+
+        const { data } = await stripe.paymentIntents.search({
+          query: `customer:"${customer.id}"`,
+        });
+
+        const [paymentIntent] = data.length ? data : [null];
+
+        if (paymentIntent.status === "requires_payment_method") {
+          // customer has a pending process
+          // for example a card declined
+          return res.send({
+            clientSecret: paymentIntent.client_secret,
+            customerId: customer.id,
+          });
+        }
+
+        // customer already has a subscription
+        return res.send({
+          customerExist: customer.id,
+        });
+      }
+
+      const customer = await stripe.customers.create({
+        email,
+        name,
+        metadata: {
+          userId,
+        },
+      });
+
+      const subscription = await stripe.subscriptions.create({
+        payment_behavior: "default_incomplete",
+        expand: ["latest_invoice.payment_intent"],
+        customer: customer.id,
+        items: [
+          {
+            price: priceId,
+          },
+        ],
+        metadata: {
+          userId,
+          email,
+        },
+      });
+
+      // console.log("subscription =>", subscription);
+
+      const clientSecret =
+        subscription.latest_invoice.payment_intent.client_secret;
+
+      res.send({
+        clientSecret,
+        customerId: customer.id,
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.post("/create-free-trial-subscription", async (req, res, next) => {
     const { userId, email, customerId, paymentMethod, priceId } = req.body;
     try {
@@ -167,63 +234,9 @@ module.exports = (config) => {
         },
       });
 
-      console.log("subscription =>", subscription);
-
-      // const clientSecret = config.constants.free_trial
-      //   ? subscription.pending_setup_intent.client_secret
-      //   : subscription.latest_invoice.payment_intent.client_secret;
-
-      res.send({ subscription });
-    } catch (error) {
-      next(error);
-    }
-  });
-
-  router.post("/create-subscription", async (req, res, next) => {
-    const { name, email, userId, priceId } = req.body;
-    try {
-      const customer = await stripe.customers.create({
-        email,
-        name,
-        metadata: {
-          userId,
-        },
-      });
-
-      const subscriptionOptions = config.constants.free_trial
-        ? {
-            trial_period_days: 14,
-            expand: ["pending_setup_intent"],
-          }
-        : {
-            payment_behavior: "default_incomplete",
-            expand: ["latest_invoice.payment_intent"],
-          };
-
-      const subscription = await stripe.subscriptions.create({
-        ...subscriptionOptions,
-        customer: customer.id,
-        items: [
-          {
-            price: priceId,
-          },
-        ],
-        metadata: {
-          userId,
-        },
-      });
-
       // console.log("subscription =>", subscription);
 
-      const clientSecret = config.constants.free_trial
-        ? subscription.pending_setup_intent.client_secret
-        : subscription.latest_invoice.payment_intent.client_secret;
-
-      res.send({
-        clientSecret,
-        customer: customer.id,
-        freeTrial: config.constants.free_trial,
-      });
+      res.send({ subscription });
     } catch (error) {
       next(error);
     }
@@ -246,12 +259,15 @@ module.exports = (config) => {
         const [setupIntent] = data.length ? data : [null];
 
         if (setupIntent.status === "requires_payment_method") {
+          // customer has a pending process
+          // for example a card declined
           return res.send({
             clientSecret: setupIntent.client_secret,
             customerId: customer.id,
           });
         }
 
+        // customer already has a subscription
         return res.send({
           customerExist: customer.id,
         });

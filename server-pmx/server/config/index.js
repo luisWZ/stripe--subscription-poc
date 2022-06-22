@@ -13,10 +13,7 @@ module.exports = {
     payment_method_types: ["card"],
   },
   clientDomain: process.env.CLIENT_DOMAIN,
-  constants: {
-    one_week: 640_800,
-    free_trial: true,
-  },
+  one_week: 640_800,
   v_api: process.env.npm_package_version?.charAt(0),
   logger,
 };

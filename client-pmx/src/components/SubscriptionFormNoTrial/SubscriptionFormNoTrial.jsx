@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import faker from '@faker-js/faker/locale/es_MX';
 
@@ -16,7 +16,7 @@ const SubscriptionFormNoTrial = ({ product, setProduct }) => {
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState(null);
   const [isFormProcessing, setIsFormProcessing] = useState(false);
-  // const [existingCustomer, setExistingCustomer] = useState(null);
+  const [existingCustomer, setExistingCustomer] = useState(null);
   const [subscription, setSubscription] = useState({
     status: false,
   });
@@ -52,11 +52,10 @@ const SubscriptionFormNoTrial = ({ product, setProduct }) => {
     const {
       error: backendError,
       clientSecret,
-      customer,
-      freeTrial,
+      customerId,
+      customerExist,
     } = await axios
-      .post('/create-subscription', {
-        // .post('/setup-intent', {
+      .post('/create-no-trial-subscription', {
         name,
         email,
         userId,
@@ -70,17 +69,13 @@ const SubscriptionFormNoTrial = ({ product, setProduct }) => {
       return;
     }
 
-    // if (customer) {
-    //   setIsFormProcessing(false);
-    //   setExistingCustomer(customer);
-    //   return;
-    // } else {
-    //   setExistingCustomer(null);
-    // }
-
-    console.log('customer', customer);
-    console.log('clientSecret', clientSecret);
-    console.log('freeTrial', freeTrial);
+    if (customerExist) {
+      setIsFormProcessing(false);
+      setExistingCustomer(customerExist);
+      return;
+    } else {
+      setExistingCustomer(null);
+    }
 
     const cardOptions = {
       payment_method: {
@@ -92,23 +87,8 @@ const SubscriptionFormNoTrial = ({ product, setProduct }) => {
       },
     };
 
-    let stripeError, intent;
-
-    if (freeTrial) {
-      const { error, setupIntent } = await stripe.confirmCardSetup(
-        clientSecret,
-        cardOptions
-      );
-      stripeError = error;
-      intent = setupIntent;
-    } else {
-      const { error, paymentIntent } = await stripe.confirmCardPayment(
-        clientSecret,
-        cardOptions
-      );
-      stripeError = error;
-      intent = paymentIntent;
-    }
+    const { error: stripeError, paymentIntent } =
+      await stripe.confirmCardPayment(clientSecret, cardOptions);
 
     setIsFormProcessing(false);
 
@@ -117,11 +97,12 @@ const SubscriptionFormNoTrial = ({ product, setProduct }) => {
       return;
     }
 
-    if (intent.status === 'succeeded') {
-      console.log('intent', intent);
+    if (paymentIntent.status === 'succeeded') {
+      console.log('paymentIntent', paymentIntent);
+
       setSubscription({
-        status: intent.status,
-        customer,
+        status: paymentIntent.status,
+        customer: customerId,
       });
     }
   };
@@ -185,6 +166,14 @@ const SubscriptionFormNoTrial = ({ product, setProduct }) => {
             <div className='error-msg' id='card-errors' role='alert'>
               {errorMessage}
             </div>
+          ) : null}
+          {existingCustomer ? (
+            <Link
+              className='existing-customer'
+              to={`/customer/${existingCustomer}`}
+            >
+              Manage subscription
+            </Link>
           ) : null}
           <TestCards />
         </div>

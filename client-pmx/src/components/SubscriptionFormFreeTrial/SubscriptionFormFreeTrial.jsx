@@ -98,7 +98,7 @@ const SubscriptionFormFreeTrial = ({ product, setProduct }) => {
     }
 
     if (setupIntent.status === 'succeeded') {
-      // console.log('setupIntent', setupIntent);
+      console.log('setupIntent', setupIntent);
 
       const { error: subscriptionError, subscription } = await axios
         .post('/create-free-trial-subscription', {
@@ -115,6 +115,8 @@ const SubscriptionFormFreeTrial = ({ product, setProduct }) => {
         setErrorMessage(subscriptionError.message);
         return;
       }
+
+      console.log('subscription', subscription);
 
       setSubscription({
         status: subscription.status,
@@ -186,7 +188,10 @@ const SubscriptionFormFreeTrial = ({ product, setProduct }) => {
             </div>
           ) : null}
           {existingCustomer ? (
-            <Link to={`/customer/${existingCustomer}`}>
+            <Link
+              className='existing-customer'
+              to={`/customer/${existingCustomer}`}
+            >
               Manage subscription
             </Link>
           ) : null}
