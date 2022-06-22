@@ -1,4 +1,3 @@
-const axios = require("axios");
 const router = require("express").Router();
 
 module.exports = (config) => {
@@ -112,7 +111,8 @@ module.exports = (config) => {
         customer_email: email,
         subscription_data: {
           metadata: { user_id: userId },
-          trial_end: Math.round(Date.now() / 1000) + config.constants.one_week,
+          trial_end:
+            Math.round(Date.now() / 1000) + config.constants.one_week * 2,
         },
         success_url: `${config.clientDomain}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${config.clientDomain}/checkout`,
@@ -149,6 +149,36 @@ module.exports = (config) => {
     }
   });
 
+  router.post("/create-free-trial-subscription", async (req, res, next) => {
+    const { userId, email, customerId, paymentMethod, priceId } = req.body;
+    try {
+      const subscription = await stripe.subscriptions.create({
+        trial_period_days: 14,
+        customer: customerId,
+        default_payment_method: paymentMethod,
+        items: [
+          {
+            price: priceId,
+          },
+        ],
+        metadata: {
+          userId,
+          email,
+        },
+      });
+
+      console.log("subscription =>", subscription);
+
+      // const clientSecret = config.constants.free_trial
+      //   ? subscription.pending_setup_intent.client_secret
+      //   : subscription.latest_invoice.payment_intent.client_secret;
+
+      res.send({ subscription });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.post("/create-subscription", async (req, res, next) => {
     const { name, email, userId, priceId } = req.body;
     try {
@@ -156,13 +186,13 @@ module.exports = (config) => {
         email,
         name,
         metadata: {
-          user_id: userId,
+          userId,
         },
       });
 
       const subscriptionOptions = config.constants.free_trial
         ? {
-            trial_period_days: 7,
+            trial_period_days: 14,
             expand: ["pending_setup_intent"],
           }
         : {
@@ -179,11 +209,11 @@ module.exports = (config) => {
           },
         ],
         metadata: {
-          user_id: userId,
+          userId,
         },
       });
 
-      console.log("subscription =>", subscription);
+      // console.log("subscription =>", subscription);
 
       const clientSecret = config.constants.free_trial
         ? subscription.pending_setup_intent.client_secret
@@ -202,22 +232,50 @@ module.exports = (config) => {
   router.post("/setup-intent", async (req, res, next) => {
     const { name, email, userId } = req.body;
     try {
+      const customerExists = await stripe.customers.search({
+        query: `email:"${email}"`,
+      });
+
+      if (customerExists.data?.length) {
+        const [customer] = customerExists.data;
+
+        const { data } = await stripe.setupIntents.list({
+          customer: customer.id,
+        });
+
+        const [setupIntent] = data.length ? data : [null];
+
+        if (setupIntent.status === "requires_payment_method") {
+          return res.send({
+            clientSecret: setupIntent.client_secret,
+            customerId: customer.id,
+          });
+        }
+
+        return res.send({
+          customerExist: customer.id,
+        });
+      }
+
       const customer = await stripe.customers.create({
         email,
         name,
         metadata: {
-          user_id: userId,
+          userId,
         },
       });
 
       const setupIntent = await stripe.setupIntents.create({
         customer: customer.id,
+        payment_method_types: config.stripe.payment_method_types,
+        metadata: {
+          userId,
+        },
       });
 
       return res.send({
         clientSecret: setupIntent.client_secret,
-        customer: customer.id,
-        freeTrial: config.constants.free_trial,
+        customerId: customer.id,
       });
     } catch (error) {
       next(error);

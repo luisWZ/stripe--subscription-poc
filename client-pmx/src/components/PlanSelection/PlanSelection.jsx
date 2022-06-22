@@ -10,7 +10,8 @@ const PlanSelection = ({ data, setProduct }) => {
               <div className='plans__plan' key={price.id}>
                 <p>{price.product?.name}</p>
                 <p>
-                  ${price.unit_amount / 100} / {price.recurring?.interval}
+                  ${price.unit_amount / 100} / {price.recurring?.interval}{' '}
+                  <small>(mxn)</small>
                 </p>
                 <button
                   onClick={() =>

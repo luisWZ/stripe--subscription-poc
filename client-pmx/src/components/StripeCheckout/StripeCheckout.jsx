@@ -28,14 +28,14 @@ const StripeCheckout = () => {
                 <p>{price.product?.name}</p>
                 <p>{price.nickname}</p>
                 <p>
-                  ${price.unit_amount / 100} /{' '}
-                  {price.recurring?.interval === 'month' ? 'mes' : 'año'}
+                  ${price.unit_amount / 100} / {price.recurring?.interval}{' '}
+                  <small>(mxn)</small>
                 </p>
 
                 <input type='hidden' name='price' value={price.id} />
                 <input type='hidden' name='email' value={email} />
                 <input type='hidden' name='userId' value={userId} />
-                <button>Seleccionar</button>
+                <button>Select</button>
               </form>
             ))
           : null}

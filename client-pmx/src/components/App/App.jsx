@@ -7,7 +7,12 @@ import '../../styles/normalize.scss';
 import '../../styles/styles.scss';
 
 const HomePage = lazy(() => import('components/HomePage'));
-const StripeElements = lazy(() => import('components/StripeElements'));
+const StripeElementsNoTrial = lazy(() =>
+  import('components/StripeElementsNoTrial')
+);
+const StripeElementsFreeTrial = lazy(() =>
+  import('components/StripeElementsFreeTrial')
+);
 const StripeCheckout = lazy(() => import('components/StripeCheckout'));
 const CustomerDashboard = lazy(() => import('components/CustomerDashboard'));
 const SubscriptionSuccess = lazy(() =>
@@ -21,7 +26,14 @@ const App = () => {
         <Layout>
           <Routes>
             <Route path='/' element={<HomePage />} />
-            <Route path='/elements' element={<StripeElements />} />
+            <Route
+              path='/elements-no-trial'
+              element={<StripeElementsNoTrial />}
+            />
+            <Route
+              path='/elements-free-trial'
+              element={<StripeElementsFreeTrial />}
+            />
             <Route path='/checkout' element={<StripeCheckout />} />
             <Route
               path='/customer/:customerId'

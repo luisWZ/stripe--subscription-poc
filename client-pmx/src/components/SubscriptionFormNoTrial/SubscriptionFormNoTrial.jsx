@@ -11,7 +11,7 @@ const userId = faker.datatype.uuid();
 const email = faker.internet.email();
 const name = `${faker.name.firstName()} ${faker.name.lastName()}`;
 
-const SubscriptionForm = ({ product, setProduct }) => {
+const SubscriptionFormNoTrial = ({ product, setProduct }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState(null);
@@ -55,12 +55,12 @@ const SubscriptionForm = ({ product, setProduct }) => {
       customer,
       freeTrial,
     } = await axios
-      // .post('/create-subscription', {
-      .post('/setup-intent', {
+      .post('/create-subscription', {
+        // .post('/setup-intent', {
         name,
         email,
         userId,
-        // priceId: product.priceId,
+        priceId: product.priceId,
       })
       .then((r) => r.data);
 
@@ -128,9 +128,9 @@ const SubscriptionForm = ({ product, setProduct }) => {
 
   return (
     <>
-      {/* {subscription.status === 'succeeded' ? (
+      {subscription.status === 'succeeded' ? (
         <Navigate to={`/customer/${subscription.customer}`} />
-      ) : null} */}
+      ) : null}
       <div className='overlay' onClick={() => setProduct(null)}>
         <div className='sidebar' onClick={(evt) => evt.stopPropagation()}>
           <button
@@ -193,4 +193,4 @@ const SubscriptionForm = ({ product, setProduct }) => {
   );
 };
 
-export default SubscriptionForm;
+export default SubscriptionFormNoTrial;
